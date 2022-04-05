@@ -1,4 +1,5 @@
-use image::{DynamicImage, GenericImage, GenericImageView, Pixel};
+use image;
+use image::{GenericImageView, Pixel};
 
 #[derive(Debug, Copy, Clone)]
 pub(crate) struct Vertex {
@@ -53,7 +54,7 @@ pub(crate) struct Mesh {
     pub(crate) positions: Vec<Vertex>,
     pub(crate) normals: Vec<Normal>,
     pub(crate) indices: Vec<u16>,
-    image: DynamicImage,
+    image: image::DynamicImage,
     maximum: f32,
     x: u32,
     y: u32,
@@ -62,7 +63,7 @@ pub(crate) struct Mesh {
 }
 
 impl Mesh {
-    pub(crate) fn new(image: DynamicImage, height: u32, width: u32) -> Mesh {
+    pub(crate) fn new(image: image::DynamicImage, height: u32, width: u32) -> Mesh {
         let dimensions = image.dimensions();
 
         // initialize mesh w/o populated position/normal/index vectors

@@ -1,5 +1,6 @@
-use glium::{Display, glutin, implement_vertex, program, Surface, uniform};
-use glium::glutin::event::VirtualKeyCode;
+use glium;
+use glium::{program, Surface};
+use glium::glutin;
 
 use crate::mesh::Mesh;
 use crate::mesh::{Vertex, Normal};
@@ -13,8 +14,8 @@ struct DisplayHandler<'a> {
 
 impl<'a> DisplayHandler<'a> {
     fn new(display: &glium::Display, mesh: Mesh) -> DisplayHandler<'a> {
-        implement_vertex!(Vertex, position);
-        implement_vertex!(Normal, normal);
+        glium::implement_vertex!(Vertex, position);
+        glium::implement_vertex!(Normal, normal);
 
         let parameters = glium::DrawParameters {
             depth: glium::Depth {
@@ -38,7 +39,7 @@ impl<'a> DisplayHandler<'a> {
         }
     }
 
-    fn draw(&self, display: &Display) {
+    fn draw(&self, display: &glium::Display) {
         let mut frame = display.draw();
 
         frame.clear_color_and_depth((0.0, 0.0, 1.0, 1.0), 1.0);
@@ -51,7 +52,7 @@ impl<'a> DisplayHandler<'a> {
                 glium::index::PrimitiveType::TrianglesList,
                 &self.mesh.indices).unwrap(),
             &self.program,
-            &uniform! {
+            &glium::uniform! {
                 model: crate::uniforms::get_model(self.scale),
                 perspective: crate::uniforms::get_perspective(&display),
                 light: crate::uniforms::LIGHT
@@ -84,13 +85,13 @@ pub(crate) fn begin(mesh: Mesh) {
                 },
                 glutin::event::WindowEvent::KeyboardInput { input, .. } => {
                     let direction: Option<crate::mesh::Direction> = match input.virtual_keycode.unwrap() {
-                        VirtualKeyCode::Up => { Some(crate::mesh::Direction::Up) },
-                        VirtualKeyCode::Down => { Some(crate::mesh::Direction::Down) },
-                        VirtualKeyCode::Left => { Some(crate::mesh::Direction::Left) },
-                        VirtualKeyCode::Right => { Some(crate::mesh::Direction::Right) },
+                        glutin::event::VirtualKeyCode::Up => { Some(crate::mesh::Direction::Up) },
+                        glutin::event::VirtualKeyCode::Down => { Some(crate::mesh::Direction::Down) },
+                        glutin::event::VirtualKeyCode::Left => { Some(crate::mesh::Direction::Left) },
+                        glutin::event::VirtualKeyCode::Right => { Some(crate::mesh::Direction::Right) },
                         other => { match other {
-                            VirtualKeyCode::PageUp => { handler.scale = (handler.scale + 0.02f32).min(1f32); },
-                            VirtualKeyCode::PageDown => { handler.scale = (handler.scale - 0.02f32).max(0f32); }
+                            glutin::event::VirtualKeyCode::PageUp => { handler.scale = (handler.scale + 0.02f32).min(1f32); },
+                            glutin::event::VirtualKeyCode::PageDown => { handler.scale = (handler.scale - 0.02f32).max(0f32); }
                             _ => { }
                         } None },
                     };
