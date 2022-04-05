@@ -1,7 +1,6 @@
 use glium;
 use glium::{program, Surface};
 use glium::glutin;
-use glium::glutin::event::{VirtualKeyCode, WindowEvent};
 
 use crate::mesh::Mesh;
 use crate::mesh::{Vertex, Normal};
