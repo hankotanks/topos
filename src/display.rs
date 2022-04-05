@@ -1,4 +1,4 @@
-use glium::{Display, Frame, glutin, implement_vertex, program, Surface, uniform};
+use glium::{Display, glutin, implement_vertex, program, Surface, uniform};
 use image::DynamicImage;
 
 use crate::mesh::Mesh;
@@ -7,12 +7,11 @@ use crate::mesh::{Vertex, Normal};
 struct DisplayHandler<'a> {
     program: glium::Program,
     parameters: glium::DrawParameters<'a>,
-    mesh: Mesh<'a>,
-
+    mesh: Mesh,
 }
 
 impl<'a> DisplayHandler<'a> {
-    fn new(display: &glium::Display, mesh: Mesh<'a>) -> DisplayHandler<'a> {
+    fn new(display: &glium::Display, mesh: Mesh) -> DisplayHandler<'a> {
         implement_vertex!(Vertex, position);
         implement_vertex!(Normal, normal);
 
@@ -52,7 +51,7 @@ impl<'a> DisplayHandler<'a> {
             &self.program,
             &uniform! {
                 model: crate::uniforms::MODEL,
-                perspective: crate::uniforms::PERSPECTIVE,
+                perspective: crate::uniforms::get_perspective(&display),
                 light: crate::uniforms::LIGHT
             },
             &self.parameters,
@@ -62,14 +61,12 @@ impl<'a> DisplayHandler<'a> {
     }
 }
 
-pub(crate) fn begin(image: DynamicImage) {
+pub(crate) fn begin(mesh: Mesh) {
     let event_loop = glutin::event_loop::EventLoop::new();
     let display = glium::Display::new(
         glutin::window::WindowBuilder::new(),
         glutin::ContextBuilder::new().with_depth_buffer(24),
         &event_loop).unwrap();
-    //let image = image::open(file).unwrap();
-    let mesh = crate::mesh::Mesh::new(&image, 5, 5);
     let handler = DisplayHandler::new(&display, mesh);
 
     event_loop.run(move |event, _, control_flow| {

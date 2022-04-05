@@ -3,6 +3,7 @@ mod display;
 mod uniforms;
 
 fn main() {
-    let image = image::open("./images/medium.png").unwrap();
-    crate::display::begin(image);
+    let mesh = crate::mesh::Mesh::new(
+        image::open("./images/medium.png").unwrap(), 20, 20);
+    crate::display::begin(mesh);
 }

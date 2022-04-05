@@ -1,6 +1,6 @@
 #version 150
 
-in vec3 v_normal;
+in vec3 to;
 in float intensity;
 
 out vec4 color;
@@ -8,7 +8,7 @@ out vec4 color;
 uniform vec3 light;
 
 void main() {
-    float brightness = dot(normalize(v_normal), normalize(light));
+    float brightness = dot(normalize(to), normalize(light));
     vec3 dark_color;
     vec3 regular_color;
     if (intensity > 0.7) {

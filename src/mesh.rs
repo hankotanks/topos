@@ -1,4 +1,4 @@
-use image::{DynamicImage, GenericImageView, Pixel, SubImage};
+use image::{DynamicImage, GenericImage, GenericImageView, Pixel};
 
 #[derive(Debug, Copy, Clone)]
 pub(crate) struct Vertex {
@@ -49,38 +49,28 @@ pub(crate) enum Direction {
     Right,
 }
 
-pub(crate) struct Mesh<'a> {
+pub(crate) struct Mesh {
     pub(crate) positions: Vec<Vertex>,
     pub(crate) normals: Vec<Normal>,
     pub(crate) indices: Vec<u16>,
-    view: SubImage<&'a DynamicImage>,
-    x: usize,
-    y: usize,
-    height: usize,
-    width: usize,
+    image: DynamicImage,
+    x: u32,
+    y: u32,
+    height: u32,
+    width: u32,
 }
 
-impl<'a> Mesh<'a> {
-    pub(crate) fn new(image: &'a DynamicImage, height: usize, width: usize) -> Mesh<'a> {
-        // Center SubImage
-        let x = (image.dimensions().0 / 2) as usize - (width / 2);
-        let y = (image.dimensions().1 / 2) as usize - (height / 2);
-        let view = SubImage::new(
-            image,
-            x as u32,
-            y as u32,
-            width as u32,
-            height as u32
-        );
-
+impl Mesh {
+    pub(crate) fn new(image: DynamicImage, height: u32, width: u32) -> Mesh {
+        let dimensions = image.dimensions();
         // initialize mesh w/o populated position/normal/index vectors
         let mut mesh = Mesh {
-            positions: vec![Vertex { position: [0f32; 3] }; height * width + 1],
-            normals: vec![Normal { normal: [0f32; 3] }; height * width + 1],
-            indices: vec![0u16; 6 * (height - 1) * (width - 1)],
-            view,
-            x,
-            y,
+            positions: vec![Vertex { position: [0f32; 3] }; (height * width + 1) as usize],
+            normals: vec![Normal { normal: [0f32; 3] }; (height * width + 1) as usize],
+            indices: vec![0u16; (6 * (height - 1) * (width - 1)) as usize],
+            image,
+            x: (dimensions.0 / 2) - (width / 2),
+            y: (dimensions.1 / 2) - (height / 2),
             height,
             width
         };
@@ -93,6 +83,8 @@ impl<'a> Mesh<'a> {
     pub(crate) fn update(&mut self) {
         self.get_positions();
         self.get_normals();
+        println!("{:?}", self.positions);
+        println!("{:?}", self.normals);
     }
 
     pub(crate) fn update_view(&mut self, direction: Direction) {
@@ -107,25 +99,21 @@ impl<'a> Mesh<'a> {
         let oy = self.y as isize + offset.1;
 
         if ox >= 0 && ox < (self.x + self.width) as isize && oy >= 0 && oy < (self.y + self.height) as isize {
-            self.x = ox as usize;
-            self.y = oy as usize;
-            self.view.change_bounds(
-                self.x as u32,
-                self.y as u32,
-                self.width as u32,
-                self.height as u32
-            );
+            self.x = ox as u32;
+            self.y = oy as u32;
         }
     }
 
     fn get_positions(&mut self) {
+        let view = self.image.sub_image(self.x, self.y, self.width, self.height);
         for y in 0..self.height {
             let y_pos = (y as f32 / self.height as f32) - 0.5f32;
             for x in 0..self.width {
-                let intensity = self.view.get_pixel(x as u32, y as u32).to_luma().0[0];
+                let intensity = view.get_pixel(x as u32, y as u32).to_luma().0[0];
+                let intensity = intensity as f32 / 800f32;
                 let x_pos = (x as f32 / self.width as f32) - 0.5f32;
-                self.positions[self.width * y + x + 1] = Vertex {
-                    position: [x_pos, y_pos, intensity as f32]
+                self.positions[(self.width * y + x) as usize + 1] = Vertex {
+                    position: [x_pos, y_pos, intensity]
                 };
             }
         }
@@ -135,12 +123,12 @@ impl<'a> Mesh<'a> {
     fn get_indices(&mut self) {
         for y in 0..(self.height - 1) {
             for x in 0..(self.width - 1) {
-                self.indices[y * 6] = (y * self.width + x + 1) as u16;
-                self.indices[y * 6 + 1] = ((y + 1) * self.width + x + 1) as u16;
-                self.indices[y * 6 + 2] = ((y + 1) * self.width + x + 2) as u16;
-                self.indices[y * 6 + 3] = (y * self.width + x + 1) as u16;
-                self.indices[y * 6 + 4] = (y * self.width + x + 2) as u16;
-                self.indices[y * 6 + 5] = ((y + 1) * self.width + x + 2) as u16;
+                self.indices[y as usize * 6] = (y * self.width + x + 1) as u16;
+                self.indices[y as usize * 6 + 1] = ((y + 1) * self.width + x + 1) as u16;
+                self.indices[y as usize * 6 + 2] = ((y + 1) * self.width + x + 2) as u16;
+                self.indices[y as usize * 6 + 3] = (y * self.width + x + 1) as u16;
+                self.indices[y as usize * 6 + 4] = (y * self.width + x + 2) as u16;
+                self.indices[y as usize * 6 + 5] = ((y + 1) * self.width + x + 2) as u16;
             }
         }
     }
