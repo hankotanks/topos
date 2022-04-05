@@ -4,6 +4,6 @@ mod uniforms;
 
 fn main() {
     let mesh = crate::mesh::Mesh::new(
-        image::open("./images/medium.png").unwrap(), 20, 20);
+        image::open("./images/medium.png").unwrap(), 64, 64);
     crate::display::begin(mesh);
 }

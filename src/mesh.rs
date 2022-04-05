@@ -63,6 +63,7 @@ pub(crate) struct Mesh {
 impl Mesh {
     pub(crate) fn new(image: DynamicImage, height: u32, width: u32) -> Mesh {
         let dimensions = image.dimensions();
+
         // initialize mesh w/o populated position/normal/index vectors
         let mut mesh = Mesh {
             positions: vec![Vertex { position: [0f32; 3] }; (height * width + 1) as usize],
@@ -83,14 +84,12 @@ impl Mesh {
     pub(crate) fn update(&mut self) {
         self.get_positions();
         self.get_normals();
-        println!("{:?}", self.positions);
-        println!("{:?}", self.normals);
     }
 
     pub(crate) fn update_view(&mut self, direction: Direction) {
         let offset: (isize, isize) = match direction {
-            Direction::Up => (0, -1),
-            Direction::Down => (0, 1),
+            Direction::Up => (0, 1),
+            Direction::Down => (0, -1),
             Direction::Left => (-1, 0),
             Direction::Right => (1, 0)
         };
@@ -98,19 +97,21 @@ impl Mesh {
         let ox = self.x as isize + offset.0;
         let oy = self.y as isize + offset.1;
 
-        if ox >= 0 && ox < (self.x + self.width) as isize && oy >= 0 && oy < (self.y + self.height) as isize {
+        let dimensions = self.image.dimensions();
+        if ox >= 0 && (ox + self.width as isize) < dimensions.0 as isize && oy >= 0 &&
+            (oy + self.height as isize) < dimensions.1 as isize {
             self.x = ox as u32;
             self.y = oy as u32;
         }
     }
 
     fn get_positions(&mut self) {
-        let view = self.image.sub_image(self.x, self.y, self.width, self.height);
+        let view = self.image.view(self.x, self.y, self.width, self.height);
         for y in 0..self.height {
             let y_pos = (y as f32 / self.height as f32) - 0.5f32;
             for x in 0..self.width {
                 let intensity = view.get_pixel(x as u32, y as u32).to_luma().0[0];
-                let intensity = intensity as f32 / 800f32;
+                let intensity = intensity as f32;
                 let x_pos = (x as f32 / self.width as f32) - 0.5f32;
                 self.positions[(self.width * y + x) as usize + 1] = Vertex {
                     position: [x_pos, y_pos, intensity]
@@ -118,17 +119,30 @@ impl Mesh {
             }
         }
 
+
+
+        self.normalize();
+
+        loop {
+            self.flatten();
+            if self.deviation() < 0.05f32 {
+                break;
+            }
+        }
     }
 
     fn get_indices(&mut self) {
+        let mut index = 0;
         for y in 0..(self.height - 1) {
             for x in 0..(self.width - 1) {
-                self.indices[y as usize * 6] = (y * self.width + x + 1) as u16;
-                self.indices[y as usize * 6 + 1] = ((y + 1) * self.width + x + 1) as u16;
-                self.indices[y as usize * 6 + 2] = ((y + 1) * self.width + x + 2) as u16;
-                self.indices[y as usize * 6 + 3] = (y * self.width + x + 1) as u16;
-                self.indices[y as usize * 6 + 4] = (y * self.width + x + 2) as u16;
-                self.indices[y as usize * 6 + 5] = ((y + 1) * self.width + x + 2) as u16;
+                self.indices[index] = (y * self.width + x + 1) as u16;
+                self.indices[index + 1] = ((y + 1) * self.width + x + 1) as u16;
+                self.indices[index + 2] = ((y + 1) * self.width + x + 2) as u16;
+                self.indices[index + 3] = (y * self.width + x + 1) as u16;
+                self.indices[index + 4] = (y * self.width + x + 2) as u16;
+                self.indices[index + 5] = ((y + 1) * self.width + x + 2) as u16;
+
+                index += 6;
             }
         }
     }
@@ -142,6 +156,62 @@ impl Mesh {
             self.normals[self.indices[index] as usize] = Normal::new(a, b, c);
             self.normals[self.indices[index + 1] as usize] = Normal::new(b, a, c);
             self.normals[self.indices[index + 2] as usize] = Normal::new(c, a, b);
+        }
+    }
+
+    fn normalize(&mut self) {
+        let maximum = self.maximum();
+        for vertex in self.positions.iter_mut() {
+            vertex.position[2] /= maximum;
+            vertex.position[2] = 1.0f32 - vertex.position[2];
+        }
+    }
+
+    fn maximum(&self) -> f32 {
+        let dimensions = self.image.dimensions();
+
+        let mut maximum = 0.0f32;
+        for y in 0..dimensions.1 {
+            for x in 0..dimensions.0 {
+                let pixel = self.image.get_pixel(x as u32, y as u32).to_luma().0[0];
+                maximum = maximum.max(pixel as f32);
+            }
+        }
+        maximum
+    }
+
+    fn deviation(&self) -> f32 {
+        let heights: Vec<f32> = self.positions.iter().map(|v| v.position[2]).collect();
+
+        let average: f32 = heights.iter().sum();
+        let average: f32 = average / self.height as f32 / self.width as f32;
+
+        let mut deviation = 0.0f32;
+        for intensity in heights.iter() {
+            deviation += (average - intensity.abs()).abs();
+        }
+
+        deviation /= self.height as f32 * self.width as f32;
+        deviation
+    }
+
+    fn flatten(&mut self) {
+        let intensity = self.positions.clone();
+
+        for y in 0..self.height {
+            for x in 0..self.width {
+                let mut adj = 0;
+                let mut average = 0.0f32;
+
+                if x as isize - 1 >= 0 { adj += 1; average += intensity[(y * self.width + x) as usize].position[2] };
+                if x + 1 < self.width { adj += 1; average += intensity[(y * self.width + x + 2) as usize].position[2] };
+                if y as isize - 1 >= 0 { adj += 1; average += intensity[((y - 1) * self.width + x + 1) as usize].position[2] };
+                if y + 1 < self.height { adj += 1; average += intensity[((y + 1) * self.width + x + 1) as usize].position[2] };
+
+                average /= adj as f32;
+                self.positions[(y * self.width + x + 1) as usize].position[2] += average;
+                self.positions[(y * self.width + x + 1) as usize].position[2] /= 2f32;
+            }
         }
     }
 }

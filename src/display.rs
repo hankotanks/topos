@@ -1,5 +1,5 @@
 use glium::{Display, glutin, implement_vertex, program, Surface, uniform};
-use image::DynamicImage;
+use glium::glutin::event::VirtualKeyCode;
 
 use crate::mesh::Mesh;
 use crate::mesh::{Vertex, Normal};
@@ -25,8 +25,8 @@ impl<'a> DisplayHandler<'a> {
         };
 
         let program = program!(display, 150 => {
-                vertex: &*std::fs::read_to_string("./src/topo.vert.glsl").unwrap(),
-                fragment: &*std::fs::read_to_string("./src/topo.frag.glsl").unwrap()
+                vertex: &*std::fs::read_to_string("./src/topo.vert.gl").unwrap(),
+                fragment: &*std::fs::read_to_string("./src/topo.frag.gl").unwrap()
             }).unwrap();
 
         DisplayHandler {
@@ -67,7 +67,7 @@ pub(crate) fn begin(mesh: Mesh) {
         glutin::window::WindowBuilder::new(),
         glutin::ContextBuilder::new().with_depth_buffer(24),
         &event_loop).unwrap();
-    let handler = DisplayHandler::new(&display, mesh);
+    let mut handler = DisplayHandler::new(&display, mesh);
 
     event_loop.run(move |event, _, control_flow| {
         let next_frame_time = std::time::Instant::now() +
@@ -79,6 +79,22 @@ pub(crate) fn begin(mesh: Mesh) {
                 glutin::event::WindowEvent::CloseRequested => {
                     *control_flow = glutin::event_loop::ControlFlow::Exit;
                     return;
+                },
+                glutin::event::WindowEvent::KeyboardInput { input, .. } => {
+                    let direction: Option<crate::mesh::Direction> = match input.virtual_keycode.unwrap() {
+                        VirtualKeyCode::W => { Some(crate::mesh::Direction::Up) },
+                        VirtualKeyCode::S => { Some(crate::mesh::Direction::Down) },
+                        VirtualKeyCode::A => { Some(crate::mesh::Direction::Left) },
+                        VirtualKeyCode::D => { Some(crate::mesh::Direction::Right) },
+                        _ => { None },
+                    };
+
+                    match direction {
+                        Some(direction) => {
+                            handler.mesh.update_view(direction);
+                            handler.mesh.update(); },
+                        None => {  }
+                    }
                 }
                 _ => return,
             },
