@@ -1,6 +1,7 @@
 use glium;
 use glium::{program, Surface};
 use glium::glutin;
+use glium::glutin::event::{VirtualKeyCode, WindowEvent};
 
 use crate::mesh::Mesh;
 use crate::mesh::{Vertex, Normal};
@@ -84,26 +85,35 @@ pub(crate) fn begin(mesh: Mesh) {
                     return;
                 },
                 glutin::event::WindowEvent::KeyboardInput { input, .. } => {
-                    let direction: Option<crate::mesh::Direction> = match input.virtual_keycode.unwrap() {
-                        glutin::event::VirtualKeyCode::Up => { Some(crate::mesh::Direction::Up) },
-                        glutin::event::VirtualKeyCode::Down => { Some(crate::mesh::Direction::Down) },
-                        glutin::event::VirtualKeyCode::Left => { Some(crate::mesh::Direction::Left) },
-                        glutin::event::VirtualKeyCode::Right => { Some(crate::mesh::Direction::Right) },
-                        other => { match other {
-                            glutin::event::VirtualKeyCode::PageUp => { handler.scale = (handler.scale + 0.02f32).min(1f32); },
-                            glutin::event::VirtualKeyCode::PageDown => { handler.scale = (handler.scale - 0.02f32).max(0f32); }
-                            _ => { }
-                        } None },
+                    let direction: Option<crate::mesh::Direction> = match input.virtual_keycode {
+                        Some(key) => {
+                            match key {
+                                glutin::event::VirtualKeyCode::Up => { Some(crate::mesh::Direction::Up) },
+                                glutin::event::VirtualKeyCode::Down => { Some(crate::mesh::Direction::Down) },
+                                glutin::event::VirtualKeyCode::Left => { Some(crate::mesh::Direction::Left) },
+                                glutin::event::VirtualKeyCode::Right => { Some(crate::mesh::Direction::Right) },
+                                other => {
+                                    match other {
+                                        glutin::event::VirtualKeyCode::PageUp => { handler.scale = (handler.scale + 0.02f32).min(1f32); },
+                                        glutin::event::VirtualKeyCode::PageDown => { handler.scale = (handler.scale - 0.02f32).max(0f32); }
+                                        _ => {}
+                                    };
+                                    None
+                                }
+                            }
+                        }
+
+                        None => { None }
                     };
 
                     match direction {
                         Some(direction) => {
                             handler.mesh.update_view(direction);
                             handler.mesh.update(); },
-                        None => {  }
+                        None => {}
                     }
                 }
-                _ => return,
+                _ => {}
             },
             glutin::event::Event::NewEvents(cause) => match cause {
                 glutin::event::StartCause::ResumeTimeReached { .. } => (),
