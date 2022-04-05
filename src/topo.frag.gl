@@ -12,7 +12,6 @@ void main() {
     vec3 dark_color;
     vec3 regular_color;
 
-    /*
     if (intensity > 0.7) {
         dark_color = mix(vec3(0.2, 0.6, 0.1), vec3(0.0, 0.3, 0.0), (intensity - 0.7) * 10.0 / 3.0);
     } else if (intensity <= 0.7 && intensity > 0.6) {
@@ -20,13 +19,6 @@ void main() {
     } else if (intensity <= 0.6) {
         dark_color = mix(vec3(0.9, 0.9, 0.9), vec3(0.2, 0.2, 0.2), intensity * (1.0 / 0.6));
 
-    }
-    */
-
-    if (intensity > 0.2) {
-        dark_color = mix(vec3(0.2, 0.6, 0.1), vec3(0.0, 0.3, 0.0), (intensity - 0.2) * 10.0 / 8.0);
-    } else if (intensity <= 0.2) {
-        dark_color = mix(vec3(0.9, 0.9, 0.9), vec3(0.2, 0.2, 0.2), intensity * 5.0);
     }
 
     regular_color = vec3(dark_color.x * 0.6, dark_color.y * 0.6, dark_color.z * 0.6);

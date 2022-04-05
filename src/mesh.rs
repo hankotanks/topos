@@ -54,6 +54,7 @@ pub(crate) struct Mesh {
     pub(crate) normals: Vec<Normal>,
     pub(crate) indices: Vec<u16>,
     image: DynamicImage,
+    maximum: f32,
     x: u32,
     y: u32,
     height: u32,
@@ -70,12 +71,14 @@ impl Mesh {
             normals: vec![Normal { normal: [0f32; 3] }; (height * width + 1) as usize],
             indices: vec![0u16; (6 * (height - 1) * (width - 1)) as usize],
             image,
+            maximum: 0.0f32,
             x: (dimensions.0 / 2) - (width / 2),
             y: (dimensions.1 / 2) - (height / 2),
             height,
             width
         };
 
+        mesh.maximum();
         mesh.get_indices();
         mesh.update();
         mesh
@@ -107,25 +110,24 @@ impl Mesh {
 
     fn get_positions(&mut self) {
         let view = self.image.view(self.x, self.y, self.width, self.height);
+
         for y in 0..self.height {
             let y_pos = (y as f32 / self.height as f32) - 0.5f32;
             for x in 0..self.width {
-                let intensity = view.get_pixel(x as u32, y as u32).to_luma().0[0];
-                let intensity = intensity as f32;
                 let x_pos = (x as f32 / self.width as f32) - 0.5f32;
+
+                let intensity = view.get_pixel(x as u32, y as u32).to_luma().0[0] as f32;
+                let intensity = intensity / self.maximum * 2f32 - 1f32;
+
                 self.positions[(self.width * y + x) as usize + 1] = Vertex {
                     position: [x_pos, y_pos, intensity]
                 };
             }
         }
 
-
-
-        self.normalize();
-
         loop {
             self.flatten();
-            if self.deviation() < 0.05f32 {
+            if self.deviation() < 0.1f32 {
                 break;
             }
         }
@@ -159,25 +161,17 @@ impl Mesh {
         }
     }
 
-    fn normalize(&mut self) {
-        let maximum = self.maximum();
-        for vertex in self.positions.iter_mut() {
-            vertex.position[2] /= maximum;
-            vertex.position[2] = 1.0f32 - vertex.position[2];
-        }
-    }
-
-    fn maximum(&self) -> f32 {
+    fn maximum(&mut self) -> f32 {
         let dimensions = self.image.dimensions();
 
-        let mut maximum = 0.0f32;
         for y in 0..dimensions.1 {
             for x in 0..dimensions.0 {
                 let pixel = self.image.get_pixel(x as u32, y as u32).to_luma().0[0];
-                maximum = maximum.max(pixel as f32);
+                self.maximum = self.maximum.max(pixel as f32);
             }
         }
-        maximum
+
+        self.maximum
     }
 
     fn deviation(&self) -> f32 {
