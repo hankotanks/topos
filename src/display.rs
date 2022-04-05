@@ -50,7 +50,7 @@ impl<'a> DisplayHandler<'a> {
                 &self.mesh.indices).unwrap(),
             &self.program,
             &uniform! {
-                model: crate::uniforms::MODEL,
+                model: crate::uniforms::get_model(),
                 perspective: crate::uniforms::get_perspective(&display),
                 light: crate::uniforms::LIGHT
             },
