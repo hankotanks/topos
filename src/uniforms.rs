@@ -1,10 +1,3 @@
-pub(crate) const MODEL: [[f32; 4]; 4] = [
-    [0.5, 0.0, 0.0, 0.0],
-    [0.0, 0.5, 0.0, 0.0],
-    [0.0, 0.0, 0.5, 0.0],
-    [0.0, 0.0, 0.2, 1.0]
-];
-
 pub(crate) const LIGHT: [f32; 3] = [
     -1.0, 0.4, 0.9f32
 ];
@@ -27,6 +20,11 @@ pub(crate) fn get_perspective(display: &glium::Display) -> [[f32; 4]; 4] {
 
 }
 
-pub(crate) fn get_model() -> [[f32; 4]; 4] {
-    MODEL
+pub(crate) fn get_model(scale: f32) -> [[f32; 4]; 4] {
+    [
+        [scale, 0.0, 0.0, 0.0],
+        [0.0, scale, 0.0, 0.0],
+        [0.0, 0.0, scale, 0.0],
+        [0.0, 0.0, 0.2, 1.0]
+    ]
 }

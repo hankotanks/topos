@@ -8,6 +8,7 @@ struct DisplayHandler<'a> {
     program: glium::Program,
     parameters: glium::DrawParameters<'a>,
     mesh: Mesh,
+    scale: f32
 }
 
 impl<'a> DisplayHandler<'a> {
@@ -32,7 +33,8 @@ impl<'a> DisplayHandler<'a> {
         DisplayHandler {
             program,
             parameters,
-            mesh
+            mesh,
+            scale: 0.5f32
         }
     }
 
@@ -50,7 +52,7 @@ impl<'a> DisplayHandler<'a> {
                 &self.mesh.indices).unwrap(),
             &self.program,
             &uniform! {
-                model: crate::uniforms::get_model(),
+                model: crate::uniforms::get_model(self.scale),
                 perspective: crate::uniforms::get_perspective(&display),
                 light: crate::uniforms::LIGHT
             },
@@ -82,11 +84,15 @@ pub(crate) fn begin(mesh: Mesh) {
                 },
                 glutin::event::WindowEvent::KeyboardInput { input, .. } => {
                     let direction: Option<crate::mesh::Direction> = match input.virtual_keycode.unwrap() {
-                        VirtualKeyCode::W => { Some(crate::mesh::Direction::Up) },
-                        VirtualKeyCode::S => { Some(crate::mesh::Direction::Down) },
-                        VirtualKeyCode::A => { Some(crate::mesh::Direction::Left) },
-                        VirtualKeyCode::D => { Some(crate::mesh::Direction::Right) },
-                        _ => { None },
+                        VirtualKeyCode::Up => { Some(crate::mesh::Direction::Up) },
+                        VirtualKeyCode::Down => { Some(crate::mesh::Direction::Down) },
+                        VirtualKeyCode::Left => { Some(crate::mesh::Direction::Left) },
+                        VirtualKeyCode::Right => { Some(crate::mesh::Direction::Right) },
+                        other => { match other {
+                            VirtualKeyCode::PageUp => { handler.scale = (handler.scale + 0.02f32).min(1f32); },
+                            VirtualKeyCode::PageDown => { handler.scale = (handler.scale - 0.02f32).max(0f32); }
+                            _ => { }
+                        } None },
                     };
 
                     match direction {
