@@ -2,6 +2,15 @@ pub(crate) const LIGHT: [f32; 3] = [
     -1.0, 0.4, 0.9f32
 ];
 
+pub(crate) fn get_model(scale: f32) -> [[f32; 4]; 4] {
+    [
+        [scale, 0.0, 0.0, 0.0],
+        [0.0, scale, 0.0, 0.0],
+        [0.0, 0.0, scale, 0.0],
+        [0.0, 0.0, 0.2, 1.0f32]
+    ]
+}
+
 pub(crate) fn get_perspective(display: &glium::Display) -> [[f32; 4]; 4] {
     let ar = display.get_max_viewport_dimensions();
     let ar = (ar.1 / ar.0) as f32;
@@ -18,13 +27,4 @@ pub(crate) fn get_perspective(display: &glium::Display) -> [[f32; 4]; 4] {
         [0.0, 0.0, -(2.0 * far * near) / (far - near), 0.0]
     ]
 
-}
-
-pub(crate) fn get_model(scale: f32) -> [[f32; 4]; 4] {
-    [
-        [scale, 0.0, 0.0, 0.0],
-        [0.0, scale, 0.0, 0.0],
-        [0.0, 0.0, scale, 0.0],
-        [0.0, 0.0, 0.2, 1.0]
-    ]
 }
