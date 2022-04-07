@@ -7,9 +7,12 @@ use std::fs::File;
 
 
 fn main() {
-    bmp::read(
-        File::open("./images/gebco.bmp").unwrap(),
-        0, 0, 10, 10).unwrap();
+    let mut bm = crate::bmp::BitmapImage::new(
+        File::open("./images/gebco.bmp").unwrap()).unwrap();
+    let bm = bm.view(0, 0, 10, 10);
+
+    println!("{:?}", bm);
+
 
     /*
     let mesh = crate::mesh::Mesh::new(
