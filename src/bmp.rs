@@ -37,7 +37,7 @@ impl BitmapImage {
         let mut pixels: Vec<Vec<f32>> = Vec::new();
 
         // define some offsets
-        let padding = (self.dimensions.0 % 4);
+        let padding = self.dimensions.0 % 4;
         let row = self.dimensions.0 * 3 + padding;
         let pre = x * 3;
         let post = row - width * 3 - pre;
