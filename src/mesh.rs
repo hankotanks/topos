@@ -10,23 +10,19 @@ pub(crate) struct Normal {
 
 impl Normal {
     fn new(a: &Vertex, b: &Vertex, c: &Vertex) -> Normal {
-        let a = a.position;
-        let b = b.position;
-        let c = c.position;
-
         let v = Vertex {
             position: [
-                b[0] - a[0],
-                b[1] - a[1],
-                b[2] - a[2]
+                b.position[0] - a.position[0],
+                b.position[1] - a.position[1],
+                b.position[2] - a.position[2]
             ]
         }.position;
 
         let w = Vertex {
             position: [
-                c[0] - a[0],
-                c[1] - a[1],
-                c[2] - a[2]
+                c.position[0] - a.position[0],
+                c.position[1] - a.position[1],
+                c.position[2] - a.position[2]
             ]
         }.position;
 
