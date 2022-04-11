@@ -103,12 +103,16 @@ impl Mesh {
     }
 
     pub(crate) fn scale(&mut self, offset: isize) {
+        // calculate the new scale using the provided offset
         let os = (self.scale as isize + offset) as u32;
 
-        if os == 0 { return; }
+        // immediately return if scale is already 1:1
+        if os <= 0 { return; }
 
-        if self.x + os * self.width < self.image.dimensions.0 && self.y + os * self.height < self.image.dimensions.1 {
+        if os * self.width < self.image.dimensions.0 && os * self.height < self.image.dimensions.1 {
             self.scale = os;
+
+            // update x and y of view box to keep the center constant
             if offset > 0 {
                 self.x -= offset.abs() as u32 * self.width / 2;
                 self.y -= offset.abs() as u32 * self.height / 2;
@@ -117,10 +121,9 @@ impl Mesh {
                 self.y += offset.abs() as u32 * self.height / 2;
             }
 
+            // update the positions and surface normals
             self.update();
         }
-
-
     }
 
     fn get_positions(&mut self) {

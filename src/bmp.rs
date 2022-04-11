@@ -76,6 +76,7 @@ impl BitmapImage {
                 // add to Vec of current pixels
                 current.push(luminance);
 
+                // skip a number of pixels determined by the scale
                 self.file.by_ref().seek(SeekFrom::Current((3 * (scale - 1)) as i64)).unwrap();
 
             }
@@ -86,6 +87,7 @@ impl BitmapImage {
             // skip to the end of the current row -- before reading the next
             self.file.by_ref().seek(SeekFrom::Current(post as i64)).unwrap();
 
+            // skip a number of rows determined by the scale
             self.file.by_ref().seek(SeekFrom::Current((row * (scale - 1)) as i64)).unwrap();
         }
 
