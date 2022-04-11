@@ -33,7 +33,7 @@ impl BitmapImage {
         })
     }
 
-    pub(crate) fn view(&mut self, x: u32, y: u32, height: u32, width: u32) -> Vec<Vec<f32>> {
+    pub(crate) fn view(&mut self, x: u32, y: u32, height: u32, width: u32, scale: u32) -> Vec<Vec<f32>> {
         let mut pixels: Vec<Vec<f32>> = Vec::new();
 
         // define some offsets

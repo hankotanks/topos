@@ -48,6 +48,7 @@ pub(crate) struct Mesh {
     pub(crate) normals: Vec<Normal>,
     pub(crate) indices: Vec<u16>,
     image: crate::bmp::BitmapImage,
+    scale: u32,
     smoothing: bool,
     x: u32,
     y: u32,
@@ -65,6 +66,7 @@ impl Mesh {
             normals: vec![Normal { normal: [0f32; 3] }; (height * width + 1) as usize],
             indices: vec![0u16; (6 * (height - 1) * (width - 1)) as usize],
             image,
+            scale: 1u32,
             smoothing,
             x: (dimensions.0 / 2) - (width / 2),
             y: (dimensions.1 / 2) - (height / 2),
@@ -101,7 +103,7 @@ impl Mesh {
     }
 
     fn get_positions(&mut self) {
-        let view = self.image.view(self.x, self.y, self.width, self.height);
+        let view = self.image.view(self.x, self.y, self.width, self.height, self.scale);
 
         for y in 0..self.height {
             let y_pos = (y as f32 / self.height as f32) - 0.5f32;
