@@ -9,7 +9,7 @@ struct DisplayHandler<'a> {
     program: glium::Program,
     parameters: glium::DrawParameters<'a>,
     mesh: Mesh,
-    scale: f32
+    zoom: f32
 }
 
 impl<'a> DisplayHandler<'a> {
@@ -35,7 +35,7 @@ impl<'a> DisplayHandler<'a> {
             program,
             parameters,
             mesh,
-            scale: 0.5f32
+            zoom: 0.5f32
         }
     }
 
@@ -53,7 +53,7 @@ impl<'a> DisplayHandler<'a> {
                 &self.mesh.indices).unwrap(),
             &self.program,
             &glium::uniform! {
-                model: crate::uniforms::get_model(self.scale),
+                model: crate::uniforms::get_model(self.zoom),
                 perspective: crate::uniforms::get_perspective(&display),
                 light: crate::uniforms::LIGHT
             },
@@ -93,8 +93,8 @@ pub(crate) fn begin(mesh: Mesh) {
                                 glutin::event::VirtualKeyCode::Right => { Some(crate::mesh::Direction::Right) },
                                 other => {
                                     match other {
-                                        glutin::event::VirtualKeyCode::PageUp => { handler.scale = (handler.scale + 0.02f32).min(1f32); },
-                                        glutin::event::VirtualKeyCode::PageDown => { handler.scale = (handler.scale - 0.02f32).max(0f32); }
+                                        glutin::event::VirtualKeyCode::PageUp => { handler.zoom = (handler.zoom + 0.02f32).min(1f32); },
+                                        glutin::event::VirtualKeyCode::PageDown => { handler.zoom = (handler.zoom - 0.02f32).max(0f32); }
                                         _ => {}
                                     };
                                     None
