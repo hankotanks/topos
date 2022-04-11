@@ -40,7 +40,7 @@ impl BitmapImage {
         let padding = self.dimensions.0 % 4;
         let row = self.dimensions.0 * 3 + padding;
         let pre = x * 3;
-        let post = row - width * 3 - pre;
+        let post = row - width * 3 * scale - pre;
 
         // move cursor to beginning of pixel array
         self.file.by_ref().seek(SeekFrom::Start(self.pixel_array_start as u64)).unwrap();
@@ -76,6 +76,8 @@ impl BitmapImage {
                 // add to Vec of current pixels
                 current.push(luminance);
 
+                self.file.by_ref().seek(SeekFrom::Current((3 * (scale - 1)) as i64)).unwrap();
+
             }
 
             // push row to `pixels` Vec
@@ -83,6 +85,8 @@ impl BitmapImage {
 
             // skip to the end of the current row -- before reading the next
             self.file.by_ref().seek(SeekFrom::Current(post as i64)).unwrap();
+
+            self.file.by_ref().seek(SeekFrom::Current((row * (scale - 1)) as i64)).unwrap();
         }
 
         pixels

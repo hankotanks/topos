@@ -95,11 +95,28 @@ impl Mesh {
         let ox = self.x as isize + offset.0;
         let oy = self.y as isize + offset.1;
 
-        if ox >= 0 && (ox + self.width as isize) < self.image.dimensions.0 as isize && oy >= 0 &&
-            (oy + self.height as isize) < self.image.dimensions.1 as isize {
+        if ox >= 0 && (ox + (self.width * self.scale) as isize) < self.image.dimensions.0 as isize && oy >= 0 &&
+            (oy + (self.height * self.scale) as isize) < self.image.dimensions.1 as isize {
             self.x = ox as u32;
             self.y = oy as u32;
         }
+    }
+
+    pub(crate) fn scale(&mut self, offset: isize) {
+        let os = (self.scale as isize + offset) as u32;
+        if os * self.width < self.image.dimensions.0 && os * self.height < self.image.dimensions.1 {
+            self.scale = os;
+            if offset > 0 {
+                self.x -= os / 2;
+                self.y -= os / 2;
+            } else if offset < 0 {
+                self.x += os / 2;
+                self.y += os / 2;
+            }
+
+        }
+
+        self.update();
     }
 
     fn get_positions(&mut self) {
