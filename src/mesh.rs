@@ -92,8 +92,8 @@ impl Mesh {
             Direction::Right => (1, 0)
         };
 
-        let ox = self.x as isize + offset.0;
-        let oy = self.y as isize + offset.1;
+        let ox = self.x as isize + offset.0 * self.scale as isize;
+        let oy = self.y as isize + offset.1 * self.scale as isize;
 
         if ox >= 0 && (ox + (self.width * self.scale) as isize) < self.image.dimensions.0 as isize && oy >= 0 &&
             (oy + (self.height * self.scale) as isize) < self.image.dimensions.1 as isize {
@@ -109,16 +109,21 @@ impl Mesh {
         // immediately return if scale is already 1:1
         if os <= 0 { return; }
 
-        if os * self.width < self.image.dimensions.0 && os * self.height < self.image.dimensions.1 {
+        if os * self.width < self.image.dimensions.0 &&
+            os * self.height < self.image.dimensions.1 {
             self.scale = os;
+
+            // calculate the offsets for x and y coordinates
+            let ox = offset.abs() as u32 * self.width / 2;
+            let oy = offset.abs() as u32 * self.height / 2;
 
             // update x and y of view box to keep the center constant
             if offset > 0 {
-                self.x -= offset.abs() as u32 * self.width / 2;
-                self.y -= offset.abs() as u32 * self.height / 2;
+                self.x -= ox;
+                self.y -= oy;
             } else if offset < 0 {
-                self.x += offset.abs() as u32 * self.width / 2;
-                self.y += offset.abs() as u32 * self.height / 2;
+                self.x += ox;
+                self.y += oy;
             }
 
             // update the positions and surface normals
