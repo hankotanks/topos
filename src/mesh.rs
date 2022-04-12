@@ -109,8 +109,8 @@ impl Mesh {
         // immediately return if scale is already 1:1
         if os <= 0 { return; }
 
-        if os * self.width < self.image.dimensions.0 &&
-            os * self.height < self.image.dimensions.1 {
+        if self.x + os * self.width < self.image.dimensions.0 &&
+            self.y + os * self.height < self.image.dimensions.1 {
             self.scale = os;
 
             // calculate the offsets for x and y coordinates
