@@ -35,7 +35,7 @@ impl<'a> DisplayHandler<'a> {
             program,
             parameters,
             mesh,
-            zoom: 0.5f32
+            zoom: 1f32
         }
     }
 
@@ -93,7 +93,7 @@ pub(crate) fn begin(mesh: Mesh) {
                                 glutin::event::VirtualKeyCode::Right => { Some(crate::mesh::Direction::Right) },
                                 other => {
                                     match other {
-                                        glutin::event::VirtualKeyCode::PageUp => { handler.zoom = (handler.zoom + 0.02f32).min(1f32); },
+                                        glutin::event::VirtualKeyCode::PageUp => { handler.zoom = (handler.zoom + 0.02f32).min(2f32); },
                                         glutin::event::VirtualKeyCode::PageDown => { handler.zoom = (handler.zoom - 0.02f32).max(0f32); },
                                         glutin::event::VirtualKeyCode::J => { handler.mesh.scale(1); },
                                         glutin::event::VirtualKeyCode::K => { handler.mesh.scale(-1); },

@@ -47,12 +47,19 @@ impl GrayMapImage {
 
             let mut current: Vec<f32> = Vec::new();
             for _ in 0..width {
-                let mut color = [0u8; 1];
-                self.file.by_ref().take(1).read(&mut color).unwrap();
+                let mut c = [0u8; 1];
+                let mut color: Vec<u32> = Vec::new();
+                for _ in 0..scale {
+                    self.file.by_ref().take(1).read(&mut c).unwrap();
+                    color.push(c[0] as u32);
+                }
 
-                current.push(color[0] as f32 / 255f32);
+                let color = color.iter().sum::<u32>();
+                let color = color / scale;
 
-                self.file.by_ref().seek(SeekFrom::Current((scale - 1) as i64)).unwrap();
+                current.push(color as f32 / 255f32);
+
+               // self.file.by_ref().seek(SeekFrom::Current((scale - 1) as i64)).unwrap();
             }
 
             heights.push(current);
