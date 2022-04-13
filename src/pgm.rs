@@ -65,13 +65,11 @@ impl GrayMapImage {
             }
 
             self.file.by_ref().seek(SeekFrom::Current((self.dimensions.0 - width * scale - x) as i64)).unwrap();
-            //self.file.by_ref().seek(SeekFrom::Current((self.dimensions.0 * (scale - 1)) as i64)).unwrap();
 
             if row % scale == 0 {
                 heights.push(current);
                 continue;
             }
-
 
             if row > scale {
                 let mut index = 0;
@@ -79,12 +77,6 @@ impl GrayMapImage {
                     index += 1; (h + current[index - 1]) / 2f32
                 } ).collect();
             }
-
-
-
-
-
-
         }
 
         heights
