@@ -6,8 +6,8 @@ Data is read from a P5 `.pgm` image, which was derived from Princeton's shaded r
 
 ## Scope
 
-- Creating a simple parser that can read a subregion with arbitrary bounds from a `.pgm` file. Since the dataset could have up to 10^8 values, not all of it can be held in memory at once (something most existing image libraries relied on).
-- Generating the mesh from the parsed data by calculating vertex positions and surface normals (for lighting).
+- Create a simple parser that can read a subregion with arbitrary bounds from a `.pgm` file. Since the dataset could have up to 10^8 values, not all of it can be held in memory at once (something most existing image libraries relied on).
+- Generate a terrain mesh from the parsed data by calculating vertex positions and surface normals (for lighting).
 - Assemble these vertices into triangles, from which the mesh is rendered.
 - Pass the triangles and normals as buffers into OpenGL using the `glium` crate (a Rust wrapper for OpenGL). Catch user input for panning, zooming, and scaling the currently-viewed region. Adjust the view accordingly.
 - Implement shaders for the resulting render using GLSL (found in `topo.vert.gl` & `topo.frag.gl`).
