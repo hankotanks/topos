@@ -6,7 +6,7 @@ mod pgm;
 use std::fs::File;
 
 fn main() {
-    let file = File::open("./images/large.pgm").unwrap();
+    let file = File::open("./images/sample.pgm").unwrap();
     let image = crate::pgm::GrayMapImage::new(file).unwrap();
 
     let mesh = crate::mesh::Mesh::new(image, 128, 128, true);
