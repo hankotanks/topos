@@ -42,45 +42,57 @@ impl GrayMapImage {
         self.file.by_ref().seek(SeekFrom::Start(self.offset)).unwrap();
         self.file.by_ref().seek(SeekFrom::Current((self.dimensions.0 * y) as i64)).unwrap();
 
-        for row in 0..(height * scale) {
-            // jump to beginning of view area
-            self.file.by_ref().seek(SeekFrom::Current(x as i64)).unwrap();
+        for _row in 0..height{
+            let mut current = capture(&mut self.file, x, width, scale, self.dimensions);
 
-            let mut current: Vec<f32> = Vec::new();
-            for _col in 0..width {
-                let mut c = [0u8; 1];
-                let mut color: Vec<u32> = Vec::new();
+            if scale > 1 {
+                self.file.by_ref().seek(SeekFrom::Current((self.dimensions.0 * (scale - 2)) as i64)).unwrap();
 
-                self.file.by_ref().take(1).read(&mut c).unwrap();
-                self.file.by_ref().seek(SeekFrom::Current((scale as i64 - 2i64).max(0i64))).unwrap();
-                color.push(c[0] as u32);
+                let aux = capture(&mut self.file, x, width, scale, self.dimensions);
 
-                if scale > 1 {
-                    self.file.by_ref().take(1).read(&mut c).unwrap();
-                }
-
-                color.push(c[0] as u32);
-                let color = (color.iter().sum::<u32>() / 2) as f32 / 255f32;
-                current.push(color);
-            }
-
-            self.file.by_ref().seek(SeekFrom::Current((self.dimensions.0 - width * scale - x) as i64)).unwrap();
-
-            if row % scale == 0 {
-                heights.push(current);
-                continue;
-            }
-
-            if row > scale {
                 let mut index = 0;
-                heights[(row / scale) as usize] = heights[(row / scale) as usize].iter().map(|h| {
-                    index += 1; (h + current[index - 1]) / 2f32
+
+                current = current.iter().map(|h| {
+                    index += 1; (h + aux[index - 1]) / 2f32
                 } ).collect();
             }
+
+            heights.push(current);
         }
 
         heights
     }
+}
+
+fn capture(file: &mut File, x: u32, width: u32, scale: u32, dimensions: (u32, u32)) -> Vec<f32> {
+    // seek to beginning of view
+    file.by_ref().seek(SeekFrom::Current(x as i64)).unwrap();
+
+    let mut current: Vec<f32> = Vec::new();
+
+    for _col in 0..width {
+        let mut c = [0u8; 1];
+        let mut color: Vec<u32> = Vec::new();
+
+        file.by_ref().take(1).read(&mut c).unwrap();
+        file.by_ref().seek(SeekFrom::Current((scale as i64 - 2i64).max(0i64))).unwrap();
+        color.push(c[0] as u32);
+
+        if scale > 1 {
+            file.by_ref().take(1).read(&mut c).unwrap();
+        }
+
+        color.push(c[0] as u32);
+        let color = (color.iter().sum::<u32>() / 2) as f32 / 255f32;
+        current.push(color);
+    }
+
+    // seek to eol
+    file.by_ref().seek(SeekFrom::Current((dimensions.0 - width * scale - x) as i64)).unwrap();
+
+    current
+
+
 }
 
 fn seek_until_eol(file: &mut File) -> Result<u64, std::io::Error> {
