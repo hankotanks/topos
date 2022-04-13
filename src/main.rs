@@ -1,16 +1,15 @@
 mod mesh;
 mod display;
 mod uniforms;
-mod bmp;
+mod pgm;
 
 use std::fs::File;
 
 fn main() {
-    let file = File::open("./images/large.bmp").unwrap();
-    let bm = crate::bmp::BitmapImage::new(file).unwrap();
+    let file = File::open("./images/america.pgm").unwrap();
+    let image = crate::pgm::GrayMapImage::new(file).unwrap();
 
-    let mesh = crate::mesh::Mesh::new(bm, 64, 64, true);
-
+    let mesh = crate::mesh::Mesh::new(image, 128, 128, true);
     crate::display::begin(mesh);
 
 }

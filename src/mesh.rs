@@ -47,7 +47,7 @@ pub(crate) struct Mesh {
     pub(crate) positions: Vec<Vertex>,
     pub(crate) normals: Vec<Normal>,
     pub(crate) indices: Vec<u16>,
-    image: crate::bmp::BitmapImage,
+    image: crate::pgm::GrayMapImage,
     scale: u32,
     smoothing: bool,
     x: u32,
@@ -57,7 +57,7 @@ pub(crate) struct Mesh {
 }
 
 impl Mesh {
-    pub(crate) fn new(image: crate::bmp::BitmapImage, height: u32, width: u32, smoothing: bool) -> Mesh {
+    pub(crate) fn new(image: crate::pgm::GrayMapImage, height: u32, width: u32, smoothing: bool) -> Mesh {
         let dimensions = image.dimensions;
 
         // initialize mesh w/o populated position/normal/index vectors
