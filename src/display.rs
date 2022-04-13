@@ -54,7 +54,7 @@ impl<'a> DisplayHandler<'a> {
             &self.program,
             &glium::uniform! {
                 model: crate::uniforms::get_model(self.zoom),
-                perspective: crate::uniforms::get_perspective(&display),
+                perspective: crate::uniforms::get_perspective(frame.get_dimensions()),
                 light: crate::uniforms::LIGHT
             },
             &self.parameters,

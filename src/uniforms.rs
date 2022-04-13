@@ -7,13 +7,12 @@ pub(crate) fn get_model(zoom: f32) -> [[f32; 4]; 4] {
         [zoom, 0.0,  0.0,  0.0],
         [0.0,  zoom, 0.0,  0.0],
         [0.0,  0.0,  zoom, 0.0],
-        [0.0,  0.0,  0.2,  1.0f32]
+        [0.0,  0.0,  0.0,  1.0f32]
     ]
 }
 
-pub(crate) fn get_perspective(display: &glium::Display) -> [[f32; 4]; 4] {
-    let ar = display.get_max_viewport_dimensions();
-    let ar = (ar.1 / ar.0) as f32;
+pub(crate) fn get_perspective(dimensions: (u32, u32)) -> [[f32; 4]; 4] {
+    let ar = dimensions.1 as f32 / dimensions.0 as f32;
 
     let far = 1024.0;
     let near = 0.1;
