@@ -2,7 +2,7 @@
 
 Using data pulled from United States Geological Survey ([USGS](https://gdg.sc.egov.usda.gov/Catalog/ProductDescription/NED.html)), this project creates a 3D mesh of a given subregion. The resulting view allows the user to increase/decrease scale, pan, and zoom. 
 
-Data is read from a P5 `.pgm` image, which was derived from Princeton's shaded relief map of the United States (https://maps.princeton.edu/catalog/stanford-zv090gb7559).
+Data is read from a P5 `.pgm` image, which was derived from Princeton's shaded relief map of the United States (https://maps.princeton.edu/catalog/stanford-zv090gb7559 & druid:zv090gb7559).
 
 ## Scope
 
