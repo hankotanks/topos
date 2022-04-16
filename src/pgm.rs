@@ -12,14 +12,17 @@ impl GrayMapImage {
     pub(crate) fn new(mut file: File) -> Result<GrayMapImage, std::io::Error> {
         seek_until_eol(&mut file)?;
         seek_until_eol(&mut file)?;
+        seek_until_eol(&mut file)?;
 
         let width = read_until(&mut file, 32)?;
+        println!("{:?}", width);
         let width = match std::str::from_utf8(width.as_slice()) {
             Ok(v) => v,
             Err(e) => panic!("{}", e),
         }.parse::<u32>().unwrap();
 
         let height = read_until(&mut file, 10)?;
+        println!("{:?}", height);
         let height = match std::str::from_utf8(height.as_slice()) {
             Ok(v) => v,
             Err(e) => panic!("{}", e),
