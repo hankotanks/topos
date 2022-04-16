@@ -5,6 +5,7 @@ use std::io::{Read, Seek, SeekFrom};
 pub(crate) struct GrayMapImage {
     file: File,
     pub(crate) dimensions: (u32, u32),
+    maximum: f32,
     offset: u64
 }
 
@@ -34,13 +35,18 @@ impl GrayMapImage {
             Err(e) => panic!("{}", e),
         }.parse::<u32>().unwrap();
 
-        seek_until_eol(&mut file)?;
+        let maximum = read_until(&mut file, 10)?;
+        let maximum = match std::str::from_utf8(maximum.as_slice()) {
+            Ok(v) => v,
+            Err(e) => panic!("{}", e),
+        }.parse::<u32>().unwrap() as f32;
 
         let offset = file.by_ref().seek(SeekFrom::Current(0))?;
 
         Ok(GrayMapImage {
             file,
             dimensions: (width, height),
+            maximum,
             offset
         })
     }
@@ -52,12 +58,12 @@ impl GrayMapImage {
         self.file.by_ref().seek(SeekFrom::Current((self.dimensions.0 * y) as i64)).unwrap();
 
         for _row in 0..height{
-            let mut current = capture(&mut self.file, x, width, scale, self.dimensions);
+            let mut current = capture(&mut self.file, x, width, scale, self.dimensions, self.maximum);
 
             if scale > 1 {
                 self.file.by_ref().seek(SeekFrom::Current((self.dimensions.0 * (scale - 2)) as i64)).unwrap();
 
-                let aux = capture(&mut self.file, x, width, scale, self.dimensions);
+                let aux = capture(&mut self.file, x, width, scale, self.dimensions, self.maximum);
 
                 let mut index = 0;
 
@@ -73,7 +79,7 @@ impl GrayMapImage {
     }
 }
 
-fn capture(file: &mut File, x: u32, width: u32, scale: u32, dimensions: (u32, u32)) -> Vec<f32> {
+fn capture(file: &mut File, x: u32, width: u32, scale: u32, dimensions: (u32, u32), maximum: f32) -> Vec<f32> {
     // seek to beginning of view
     file.by_ref().seek(SeekFrom::Current(x as i64)).unwrap();
 
@@ -92,7 +98,7 @@ fn capture(file: &mut File, x: u32, width: u32, scale: u32, dimensions: (u32, u3
         }
 
         color.push(c[0] as u32);
-        let color = (color.iter().sum::<u32>() / 2) as f32 / 255f32;
+        let color = (color.iter().sum::<u32>() / 2) as f32 / maximum;
         current.push(color);
     }
 
