@@ -12,6 +12,6 @@ uniform mat4 perspective;
 void main() {
     to = transpose(inverse(mat3(model))) * normal;
     intensity = position.z;
-    vec3 normalized_position = vec3(position.x * 2.0, position.y * 2.0  + 0.5, position.z * 0.5 + 0.5);
+    vec3 normalized_position = vec3(position.x * 2.0, position.y * -2.0  + 0.5, position.z * 0.5 + 0.5);
     gl_Position = perspective * model * vec4(normalized_position, 1.0);
 }
