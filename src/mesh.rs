@@ -150,7 +150,7 @@ impl Mesh {
         if self.smoothing {
             loop {
                 self.flatten();
-                if self.deviation() < 0.15f32 {
+                if self.deviation() < self.scale as f32 * 0.1 {
                     break;
                 }
             }

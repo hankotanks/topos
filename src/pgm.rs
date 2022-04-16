@@ -10,19 +10,25 @@ pub(crate) struct GrayMapImage {
 
 impl GrayMapImage {
     pub(crate) fn new(mut file: File) -> Result<GrayMapImage, std::io::Error> {
-        seek_until_eol(&mut file)?;
-        seek_until_eol(&mut file)?;
-        seek_until_eol(&mut file)?;
+        let mut buffer = [0u8; 1];
+
+        loop {
+            seek_until_eol(&mut file)?;
+            file.by_ref().take(1).read(&mut buffer)?;
+
+            if (48..58).contains(&(buffer[0] as i32)) {
+                file.by_ref().seek(SeekFrom::Current(-1))?;
+                break;
+            }
+        }
 
         let width = read_until(&mut file, 32)?;
-        println!("{:?}", width);
         let width = match std::str::from_utf8(width.as_slice()) {
             Ok(v) => v,
             Err(e) => panic!("{}", e),
         }.parse::<u32>().unwrap();
 
         let height = read_until(&mut file, 10)?;
-        println!("{:?}", height);
         let height = match std::str::from_utf8(height.as_slice()) {
             Ok(v) => v,
             Err(e) => panic!("{}", e),
