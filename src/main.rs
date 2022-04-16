@@ -14,5 +14,5 @@ fn main() {
 
 }
 
-// TODO: Resolve issue where some .pgm files have 3 lines before dimensions, others have 2
 // TODO: Flip the image so that the render is right-side up
+// TODO: Pad mesh instead of checking if view passes over map border
