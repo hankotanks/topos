@@ -86,8 +86,8 @@ impl Mesh {
 
     pub(crate) fn update_view(&mut self, direction: Direction) {
         let offset: (isize, isize) = match direction {
-            Direction::Up => (0, 1),
-            Direction::Down => (0, -1),
+            Direction::Up => (0, -1),
+            Direction::Down => (0, 1),
             Direction::Left => (-1, 0),
             Direction::Right => (1, 0)
         };

@@ -13,5 +13,3 @@ fn main() {
     crate::display::begin(mesh);
 
 }
-
-// TODO: Flip the image so that the render is right-side up
