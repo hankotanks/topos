@@ -66,7 +66,6 @@ impl GrayMapImage {
                 let aux = capture(&mut self.file, x, width, scale, self.dimensions, self.maximum);
 
                 let mut index = 0;
-
                 current = current.iter().map(|h| {
                     index += 1; (h + aux[index - 1]) / 2f32
                 } ).collect();
